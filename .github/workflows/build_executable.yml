@@ -20,7 +20,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: Pillow_PNG_TGA_Editor
-          path: ./Pillow_PNG_TGA_Editor.exe
+          path: dist/Pillow_PNG_TGA_Editor.exe
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -38,6 +38,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./Pillow_PNG_TGA_Editor.exe
+          asset_path: dist/Pillow_PNG_TGA_Editor.exe
           asset_name: Pillow_PNG_TGA_Editor.exe
           asset_content_type: application/vnd.microsoft.portable-executable
