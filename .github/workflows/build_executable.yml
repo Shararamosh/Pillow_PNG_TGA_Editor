@@ -6,6 +6,10 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -14,7 +18,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install requirements
-        run: pip install pillow tqdm pyinstaller
+        run: pip install winerror pillow tqdm pyinstaller
       - name: Run PyInstaller
         run: pyinstaller --onefile --name="Pillow_PNG_TGA_Editor" --console --icon=images\Pillows_Hat_Icon.tga main.py
       - uses: actions/upload-artifact@v4
