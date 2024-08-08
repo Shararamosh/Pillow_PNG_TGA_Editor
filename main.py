@@ -5,68 +5,85 @@
 import os
 import sys
 import logging
-from tkinter import filedialog
+from tkinter import Tk, filedialog
+import winerror
 import PIL.Image
+import PIL.ImageTk
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from helper_funcs import resave_img
 
-logging.basicConfig(format="%(message)s", level=logging.INFO)
+logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
+supported_extensions = set(PIL.Image.registered_extensions().keys())
+root = Tk()
+root.withdraw()
+root.iconphoto(True, PIL.ImageTk.PhotoImage(file="images/Pillows_Hat_Icon.tga"))
 
 
-def main():
+def get_convertable_files(root_path: str) -> (list[str], int):
+    """
+    Получение списка путей к конвертируемым файлов.
+    :param root_path: Путь к корневой директории.
+    :return: Список путей к файлам и общий размер файлов.
+    """
+    all_files = []
+    full_size = 0
+    logging.info("Индексирование файлов...")
+    for subdir, _, files in os.walk(root_path):
+        for file in files:
+            file_path = os.path.abspath(os.path.join(subdir, file))
+            if os.path.splitext(file_path)[1].lower() not in supported_extensions:
+                continue
+            all_files.append(file_path)  # Полный путь к файлу.
+            full_size += os.stat(file_path).st_size
+    logging.info("Индексирование завершено.")
+    return all_files, full_size
+
+
+def main() -> str | int:
     """
     Конвертация изображения в заданной директории из форматов, поддерживаемых библиотекой Pillow
     в форматы, читаемые A Hat in Time/Unreal Engine 3 Editor.
-    :return:
+    :return: Код ошибки или строка с ошибкой.
     """
-    supported_extensions = set(PIL.Image.registered_extensions().keys())
     root_path = filedialog.askdirectory()
     if root_path == "":
-        sys.exit()
+        return winerror.ERROR_DIR_NOT_ROOT
     resave_success = 0
     error_files = []  # Файлы, которые не удалось прочитать.
     obsolete_files = []  # Файлы, которые необходимо удалить.
     already_exist_files = []  # Файлы, которые не удалось пересохранить, так как по новому пути
     # уже существует другой файл, совпадающий по имени и расширению с конвертированным.
-    all_files = []  # Все файлы в корневой директории.
-    full_size = 0
-    for subdir, _, files in os.walk(root_path):
-        for file in files:
-            file_path = os.path.join(subdir, file)
-            if os.path.splitext(file_path)[1].lower() not in supported_extensions:
-                continue
-            all_files.append(file_path)  # Полный путь к файлу.
-            full_size += os.stat(file_path).st_size
+    all_files, full_size = get_convertable_files(root_path)
     with logging_redirect_tqdm():
         pbar = tqdm(total=full_size, position=0, unit="B", unit_scale=True, desc="Файлы")
         for file_path in all_files:
-            file_path_short = os.path.relpath(file_path, root_path)
-            pbar.set_postfix_str(file_path_short)
+            file_path_rel = os.path.relpath(file_path, root_path)
+            pbar.set_postfix_str(file_path_rel)
             try:
                 with PIL.Image.open(file_path) as img:
                     try:
                         new_file_path = resave_img(img)
-                    except Exception as e:
+                    except OSError as e:
                         if e == FileExistsError:
                             already_exist_files.append(file_path)
                     else:
                         if new_file_path != "":
                             pbar.clear()
-                            logging.info("%s -> %s", file_path_short,
+                            logging.info("%s -> %s", file_path_rel,
                                          new_file_path[len(root_path) + 1:])
                             if file_path not in obsolete_files:
                                 obsolete_files.append(file_path)
                             if new_file_path in obsolete_files:
                                 obsolete_files.remove(new_file_path)
                             resave_success += 1
-            except Exception as e:
+            except OSError as e:
                 if e == PIL.UnidentifiedImageError:
                     pbar.clear()
-                    logging.info("Файл %s не распознан как изображение.", file_path_short)
+                    logging.info("Файл %s не распознан как изображение.", file_path_rel)
                 else:
                     pbar.clear()
-                    logging.info("Исключение для %s:", file_path_short)
+                    logging.info("Исключение для %s:", file_path_rel)
                     logging.info(e)
                 error_files.append(file_path)
             pbar.update(os.stat(file_path).st_size)
@@ -76,9 +93,10 @@ def main():
     for obsolete_file in obsolete_files:
         try:
             os.remove(obsolete_file)
-        except Exception as e:
+        except OSError as e:
             logging.info("Исключение при удалении %s:", os.path.relpath(obsolete_file, root_path))
             logging.info(e)
+    return winerror.ERROR_SUCCESS
 
 
 def log_statistics(root_path: str, error_files: list[str], resave_success: int,
@@ -110,4 +128,4 @@ def log_statistics(root_path: str, error_files: list[str], resave_success: int,
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

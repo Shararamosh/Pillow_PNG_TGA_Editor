@@ -1,0 +1,43 @@
+name: Build Executable
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install requirements
+        run: pip install pillow tqdm pyinstaller
+      - name: Run PyInstaller
+        run: pyinstaller --onefile --name="Pillow_PNG_TGA_Editor" --console --icon=..\images\Pillows_Hat_Icon.tga main.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Pillow_PNG_TGA_Editor
+          path: ./Pillow_PNG_TGA_Editor.exe
+      - name: Create Release
+        id: create_release
+        uses: actions/create_release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./Pillow_PNG_TGA_Editor.exe
+          asset_name: Pillow_PNG_TGA_Editor.exe
+          asset_content_type: application/vnd.microsoft.portable-executable

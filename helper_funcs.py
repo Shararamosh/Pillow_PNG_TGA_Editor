@@ -79,8 +79,9 @@ def resave_img(img_object: PIL.Image.Image) -> str:
             fpe + TARGET_TRANSPARENT_EXTENSION):  # Существует другой файл с новым путём.
         raise FileExistsError
     if ext == TARGET_TRANSPARENT_EXTENSION.lower() and img_object.mode == "RGBA" and (
-            ext != ".tga" or getattr(img_object.info,
-                                     "compression") == "tga_rle"):  # Изображение уже
+            TARGET_TRANSPARENT_EXTENSION.lower() != ".tga" or (
+            "compression" in img_object.info and img_object.info["compression"]
+            == "tga_rle")):  # Изображение уже
         # в нужном формате.
         return ""
     if img_object.mode != "RGBA":
