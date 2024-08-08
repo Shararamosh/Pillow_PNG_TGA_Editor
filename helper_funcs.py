@@ -3,6 +3,7 @@
 """
 import os
 import logging
+import i18n
 import PIL.Image
 
 TARGET_OPAQUE_EXTENSION = ".png"  # Расширение, в котором будут сохраняться изображения
@@ -46,9 +47,9 @@ def save_image(img_object: PIL.Image.Image, fpe: str, ext: str) -> str:
             img_object.save(fp, optimize=True, quality=100, compression="tga_rle")
         else:
             img_object.save(fp, optimize=True, quality=100)
-    except Exception as exc:
-        logging.info("Исключение при попытке сохранения %s:", fp)
-        logging.info(exc)
+    except OSError as e:
+        logging.info(i18n.t("helper_funcs.exception_save"), fp)
+        logging.info(e)
         return ""
     return fp
 

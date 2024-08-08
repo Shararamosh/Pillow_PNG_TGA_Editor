@@ -5,15 +5,25 @@
 import os
 import sys
 import logging
+import locale
+import warnings
 from tkinter import Tk, filedialog
-import winerror
+import i18n
 import PIL.Image
 import PIL.ImageTk
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
-from helper_funcs import resave_img
+from helper_funcs import resave_img  # pylint: disable=import-error
 
 logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+i18n.set("locale", locale.getdefaultlocale()[0])  # pylint: disable=deprecated-method
+i18n.set("fallback", "en_US")
+i18n.load_path.append("localization")
+i18n.set("file_format", "yml")
+i18n.set("filename_format", "{namespace}.{format}")
+i18n.set("skip_locale_root_data", True)
+i18n.set("use_locale_dirs", True)
 supported_extensions = set(PIL.Image.registered_extensions().keys())
 root = Tk()
 root.withdraw()
@@ -28,7 +38,7 @@ def get_convertable_files(root_path: str) -> (list[str], int):
     """
     all_files = []
     full_size = 0
-    logging.info("Индексирование файлов...")
+    logging.info(i18n.t("main.indexing_start"))
     for subdir, _, files in os.walk(root_path):
         for file in files:
             file_path = os.path.abspath(os.path.join(subdir, file))
@@ -36,28 +46,27 @@ def get_convertable_files(root_path: str) -> (list[str], int):
                 continue
             all_files.append(file_path)  # Полный путь к файлу.
             full_size += os.stat(file_path).st_size
-    logging.info("Индексирование завершено.")
+    logging.info(i18n.t("main.indexing_stop"))
     return all_files, full_size
 
 
-def main() -> str | int:
+def batch_convert_files(root_path: str, files: list[str], full_size: int) -> list[str]:
     """
-    Конвертация изображения в заданной директории из форматов, поддерживаемых библиотекой Pillow
-    в форматы, читаемые A Hat in Time/Unreal Engine 3 Editor.
-    :return: Код ошибки или строка с ошибкой.
+    Конвертация изображений в нужный формат при соблюдении условий.
+    :param root_path: Корневой путь к директории (для вычисления относительного пути к файлу).
+    :param files: Список путей к изображениям.
+    :param full_size: Полный размер всех изображений в списке.
+    :return: Список путей к изображениям, которые нужно удалить.
     """
-    root_path = filedialog.askdirectory()
-    if root_path == "":
-        return winerror.ERROR_DIR_NOT_ROOT
-    resave_success = 0
+    resave_success = 0  # Количество изображений, которые успешно конвертированы.
     error_files = []  # Файлы, которые не удалось прочитать.
     obsolete_files = []  # Файлы, которые необходимо удалить.
-    already_exist_files = []  # Файлы, которые не удалось пересохранить, так как по новому пути
+    already_exist_files = []  # Файлы, которые не удалось конвертировать, так как по новому пути
     # уже существует другой файл, совпадающий по имени и расширению с конвертированным.
-    all_files, full_size = get_convertable_files(root_path)
     with logging_redirect_tqdm():
-        pbar = tqdm(total=full_size, position=0, unit="B", unit_scale=True, desc="Файлы")
-        for file_path in all_files:
+        pbar = tqdm(total=full_size, position=0, unit="B", unit_scale=True,
+                    desc=i18n.t("main.files"))
+        for file_path in files:
             file_path_rel = os.path.relpath(file_path, root_path)
             pbar.set_postfix_str(file_path_rel)
             try:
@@ -80,23 +89,31 @@ def main() -> str | int:
             except OSError as e:
                 if e == PIL.UnidentifiedImageError:
                     pbar.clear()
-                    logging.info("Файл %s не распознан как изображение.", file_path_rel)
+                    logging.info(i18n.t("main.file_not_image"), file_path_rel)
                 else:
                     pbar.clear()
-                    logging.info("Исключение для %s:", file_path_rel)
+                    logging.info(i18n.t("main.exception"), file_path_rel)
                     logging.info(e)
                 error_files.append(file_path)
             pbar.update(os.stat(file_path).st_size)
         pbar.set_postfix_str("")
         pbar.close()
     log_statistics(root_path, error_files, resave_success, already_exist_files, obsolete_files)
-    for obsolete_file in obsolete_files:
+    return obsolete_files
+
+
+def batch_remove_files(root_path: str, files: list[str]):
+    """
+    Удаление файлов.
+    :param root_path: Корневой путь к директории (для вычисления относительного пути к файлу).
+    :param files: Список путей к файлам.
+    """
+    for file in files:
         try:
-            os.remove(obsolete_file)
+            os.remove(file)
         except OSError as e:
-            logging.info("Исключение при удалении %s:", os.path.relpath(obsolete_file, root_path))
+            logging.info(i18n.t("main.exception_remove"), os.path.relpath(file, root_path))
             logging.info(e)
-    return winerror.ERROR_SUCCESS
 
 
 def log_statistics(root_path: str, error_files: list[str], resave_success: int,
@@ -112,19 +129,36 @@ def log_statistics(root_path: str, error_files: list[str], resave_success: int,
     :return:
     """
     if len(error_files) > 0:
-        logging.info("Не удалось открыть файлы:")
+        logging.info(i18n.t("main.failed_to_open_files"))
         for error_file in error_files:
             logging.info(os.path.relpath(error_file, root_path))
     if resave_success > 0:
-        logging.info("Удачно пересохранено файлов: %s.", resave_success)
+        logging.info(i18n.t("main.converted_files"), resave_success)
     if len(already_exist_files) > 0:
-        logging.info("Не удалось пересохранить файлы:")
+        logging.info(i18n.t("main.failed_to_convert_files"))
         for already_exist_file in already_exist_files:
             logging.info(os.path.relpath(already_exist_file, root_path))
     if len(obsolete_files) > 0:
-        logging.info("Следующие файлы будут удалены:")
+        logging.info(i18n.t("main.pending_removal_files"))
         for obsolete_file in obsolete_files:
             logging.info(os.path.relpath(obsolete_file, root_path))
+
+
+def main() -> str | int:
+    """
+    Конвертация изображения в заданной директории из форматов, поддерживаемых библиотекой Pillow
+    в форматы, читаемые A Hat in Time/Unreal Engine 3 Editor.
+    :return: Код ошибки или строка с ошибкой.
+    """
+    root_path = filedialog.askdirectory()
+    if root_path == "":
+        if sys.platform == "win32":
+            return 144  # ERROR_DIR_NOT_ROOT
+        return os.EX_OK
+    all_files, full_size = get_convertable_files(root_path)
+    obsolete_files = batch_convert_files(root_path, all_files, full_size)
+    batch_remove_files(root_path, obsolete_files)
+    return os.EX_OK
 
 
 if __name__ == "__main__":
