@@ -20,7 +20,7 @@ jobs:
       - name: Install requirements
         run: pip install pillow tqdm i18nice[YAML] pyinstaller
       - name: Run PyInstaller
-        run: pyinstaller --onefile --name="Pillow_PNG_TGA_Editor" --add-data=images;images --add-data=localization;localization --console --icon=images\Pillows_Hat_Icon.tga main.py
+        run: pyinstaller --onefile --name="Pillow_PNG_TGA_Editor" --add-data=images:images --add-data=localization:localization --console --icon=images\Pillows_Hat_Icon.tga main.py
       - uses: actions/upload-artifact@v4
         with:
           name: Pillow_PNG_TGA_Editor
