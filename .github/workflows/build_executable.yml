@@ -6,10 +6,6 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      repository-projects: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,21 +17,11 @@ jobs:
         run: pip install pillow tqdm i18nice[YAML] pyinstaller
       - name: Run PyInstaller
         run: pyinstaller --onefile --name="Pillow_PNG_TGA_Editor" --add-data=images:images --add-data=localization:localization --console --icon=images\Pillows_Hat_Icon.tga main.py
-      - name: Create Windows Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Automatic Windows Release
+        uses: marvinpinto/action-automatic-releases@latest
         with:
-          tag_name: ${{ github.run_number }}
-          release_name: Release ${{ github.run_number }}
-          body_path: CHANGELOG.md
-      - name: Upload Windows Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist
-          asset_name: Pillow_PNG_TGA_Editor.zip
-          asset_content_type: application/zip
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: latest
+          prerelease: false
+          title: Latest Build
+          files: dist/*
