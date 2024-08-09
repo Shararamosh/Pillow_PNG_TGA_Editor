@@ -1,10 +1,8 @@
 name: Build Windows Executable
 on:
   push:
-    branches:
-      - master
     tags:
-      - '*'
+      - "*"
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -29,10 +27,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          draft: false
-          prerelease: false
-          release_name: Release ${{ github.ref }}
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
           body_path: CHANGELOG.md
       - name: Upload Windows Release Asset
         uses: actions/upload-release-asset@v1
