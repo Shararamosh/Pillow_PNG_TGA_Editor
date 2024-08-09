@@ -16,7 +16,7 @@ jobs:
       - name: Install requirements
         run: pip install pillow tqdm i18nice[YAML] pyinstaller
       - name: Run PyInstaller
-        run: pyinstaller --onedir --contents-directory=. --onefile --name="Pillow_PNG_TGA_Editor" --console --icon=images\Pillows_Hat_Icon.tga main.py
+        run: pyinstaller --onedir --contents-directory="." --onefile --name="Pillow_PNG_TGA_Editor" --console --icon=images\Pillows_Hat_Icon.tga main.py
       - name: Zip Assets
         uses: vimtor/action-zip@v1.2
         with:
