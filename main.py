@@ -25,9 +25,10 @@ i18n.set("filename_format", "{namespace}.{format}")
 i18n.set("skip_locale_root_data", True)
 i18n.set("use_locale_dirs", True)
 supported_extensions = set(PIL.Image.registered_extensions().keys())
-root = Tk()
-root.withdraw()
-root.iconphoto(True, PIL.ImageTk.PhotoImage(file="images/Pillows_Hat_Icon.tga"))
+if os.path.isfile("images/Pillows_Hat_Icon.tga"):
+    root = Tk()
+    root.withdraw()
+    root.iconphoto(True, PIL.ImageTk.PhotoImage(file="images/Pillows_Hat_Icon.tga"))
 
 
 def get_convertable_files(root_path: str) -> (list[str], int):

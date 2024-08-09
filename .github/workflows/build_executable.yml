@@ -16,7 +16,7 @@ jobs:
       - name: Install requirements
         run: pip install pillow tqdm i18nice[YAML] pyinstaller
       - name: Run PyInstaller
-        run: pyinstaller --onefile --name="Pillow_PNG_TGA_Editor" --add-data=images:images --add-data=localization:localization --console --icon=images\Pillows_Hat_Icon.tga main.py
+        run: pyinstaller --onefile --name="Pillow_PNG_TGA_Editor" --console --icon=images\Pillows_Hat_Icon.tga main.py
       - name: Create Automatic Windows Release
         uses: marvinpinto/action-automatic-releases@latest
         with:
@@ -24,4 +24,7 @@ jobs:
           automatic_release_tag: latest
           prerelease: false
           title: Latest Build
-          files: dist/*
+          files: |
+            images
+            localization
+            dist/*
