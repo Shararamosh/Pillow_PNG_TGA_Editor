@@ -21,6 +21,7 @@ jobs:
         uses: vimtor/action-zip@v1.2
         with:
           files: dist/Pillow_PNG_TGA_Editor.exe images localization
+          recursive: false
           dest: Pillow_PNG_TGA_Editor.zip
       - name: Create Automatic Windows Release
         uses: marvinpinto/action-automatic-releases@latest
