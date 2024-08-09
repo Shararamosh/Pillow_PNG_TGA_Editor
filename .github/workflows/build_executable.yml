@@ -20,7 +20,7 @@ jobs:
       - name: Zip Assets
         uses: vimtor/action-zip@v1.2
         with:
-          files: dist/* images localization
+          files: dist/Pillow_PNG_TGA_Editor.exe images localization
           dest: Pillow_PNG_TGA_Editor.zip
       - name: Create Automatic Windows Release
         uses: marvinpinto/action-automatic-releases@latest
