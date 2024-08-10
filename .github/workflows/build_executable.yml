@@ -1,4 +1,5 @@
 name: Build Windows Executable
+permissions: write-all
 on:
   push:
     branches:
@@ -16,16 +17,10 @@ jobs:
       - name: Install requirements
         run: pip install pillow tqdm i18nice[YAML] pyinstaller
       - name: Run PyInstaller
-        run: pyinstaller --onefile --name="Pillow_PNG_TGA_Editor" --console --icon=images\Pillows_Hat_Icon.tga main.py
+        run: pyinstaller --onefile --name="Pillow_PNG_TGA_Editor" --console --icon=images\Pillows_Hat_Icon.tga --add-data="images:images" --add-data="localization:localization" main.py
       - name: Copy Executable from dist to root directory
         run: copy dist\Pillow_PNG_TGA_Editor.exe .
         shell: cmd
-      - name: Zip Assets
-        uses: vimtor/action-zip@v1.2
-        with:
-          files: Pillow_PNG_TGA_Editor.exe images localization
-          recursive: false
-          dest: Pillow_PNG_TGA_Editor.zip
       - name: Create Automatic Windows Release
         uses: marvinpinto/action-automatic-releases@latest
         with:
@@ -33,4 +28,4 @@ jobs:
           automatic_release_tag: latest
           prerelease: false
           title: Latest Build
-          files: Pillow_PNG_TGA_Editor.zip
+          files: Pillow_PNG_TGA_Editor.exe

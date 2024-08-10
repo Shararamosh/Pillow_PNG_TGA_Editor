@@ -15,20 +15,31 @@ from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from helper_funcs import resave_img  # pylint: disable=import-error
 
+
+def get_resource_path(filename: str) -> str:
+    """
+    Получение пути к файлу или директории, если используется PyInstaller.
+    :param filename: Изначальный путь к файлу или директории.
+    :return: Изменённый путь к файлу или директории.
+    """
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(getattr(sys, "_MEIPASS"), filename)
+    return filename
+
+
 logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 i18n.set("locale", locale.getdefaultlocale()[0])  # pylint: disable=deprecated-method
 i18n.set("fallback", "en_US")
-i18n.load_path.append("localization")
+i18n.load_path.append(get_resource_path("localization"))
 i18n.set("file_format", "yml")
 i18n.set("filename_format", "{namespace}.{format}")
 i18n.set("skip_locale_root_data", True)
 i18n.set("use_locale_dirs", True)
 supported_extensions = set(PIL.Image.registered_extensions().keys())
-if os.path.isfile("images/Pillows_Hat_Icon.tga"):
-    root = Tk()
-    root.withdraw()
-    root.iconphoto(True, PIL.ImageTk.PhotoImage(file="images/Pillows_Hat_Icon.tga"))
+root = Tk()
+root.withdraw()
+root.iconphoto(True, PIL.ImageTk.PhotoImage(file=get_resource_path("images/Pillows_Hat_Icon.tga")))
 
 
 def get_convertable_files(root_path: str) -> (list[str], int):
