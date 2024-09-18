@@ -8,3 +8,7 @@ failed_to_open_files: "Can't open files:"
 converted_files: "Successfully converted files: %s."
 failed_to_convert_files: "Failed to convert files:"
 pending_removal_files: "The following files will be removed:"
+pillow_png_tga_editor_name: Unreal Engine Import Texture Converter
+pillow_png_tga_editor_desc: Batch converts textures in the input directory and its sub-directories from any image format supported by PIL (Pillow) to PNG or RLE TGA depending on transparency.
+input_path_arg: Input directory
+file_already_exists: File already exists

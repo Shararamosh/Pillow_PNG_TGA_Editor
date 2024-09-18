@@ -8,3 +8,7 @@ failed_to_open_files: "Не удаётся открыть файлы:"
 converted_files: "Успешно конвертировано файлов: %s."
 failed_to_convert_files: "Не удалось конвертировать файлы:"
 pending_removal_files: "Следующие файлы будут удалены:"
+pillow_png_tga_editor_name: Unreal Engine Import Texture Converter
+pillow_png_tga_editor_desc: Массово конвертирует текстуры из директории ввода и её под-директорий из любого формата изображений, поддерживаемого PIL (Pillow), в PNG или RLE TGA в зависимости от наличия прозрачности.
+input_path_arg: Директория ввода
+file_already_exists: Файл уже существует

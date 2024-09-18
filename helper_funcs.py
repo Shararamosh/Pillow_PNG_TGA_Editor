@@ -3,7 +3,8 @@
 """
 import os
 import logging
-import i18n
+import errno
+from i18n import t
 import PIL.Image
 
 TARGET_OPAQUE_EXTENSION = ".png"  # Расширение, в котором будут сохраняться изображения
@@ -16,8 +17,8 @@ logging.basicConfig(format="%(message)s", level=logging.INFO)
 def has_transparency(img_object: PIL.Image.Image) -> bool:
     """
     Проверка изображения на наличие частичной или полной прозрачности пикселей.
-    :param img_object: Изображение
-    :return: Является ли изображение частично или полностью прозрачным
+    :param img_object: Изображение.
+    :return: Является ли изображение частично или полностью прозрачным.
     """
     if img_object.mode == "P":
         transparent = img_object.info.get("transparency", -1)
@@ -34,10 +35,10 @@ def has_transparency(img_object: PIL.Image.Image) -> bool:
 def save_image(img_object: PIL.Image.Image, fpe: str, ext: str) -> str:
     """
     Сохранение изображения с заданным именем и расширением.
-    :param img_object: Изображение
-    :param fpe: Путь к файлу без расширения
-    :param ext: Расширение файла с точкой
-    :return: Путь к сохранённому файлу
+    :param img_object: Изображение.
+    :param fpe: Путь к файлу без расширения.
+    :param ext: Расширение файла с точкой.
+    :return: Путь к сохранённому файлу.
     """
     if img_object is None:
         return ""
@@ -48,7 +49,7 @@ def save_image(img_object: PIL.Image.Image, fpe: str, ext: str) -> str:
         else:
             img_object.save(fp, optimize=True, quality=100)
     except OSError as e:
-        logging.info(i18n.t("helper_funcs.exception_save"), fp)
+        logging.info(t("helper_funcs.exception_save"), fp)
         logging.info(e)
         return ""
     return fp
@@ -58,7 +59,7 @@ def resave_img(img_object: PIL.Image.Image) -> str:
     """
     Сохранение изображения в другом формате в зависимости от наличия в нём прозрачности и RLE-сжатия
     для случая TGA.
-    :param img_object: Изображение
+    :param img_object: Изображение.
     :return: Путь к сохранённому файлу или пустая строка, если файл уже в нужном формате.
     """
     fp = getattr(img_object, "filename", "")
@@ -69,7 +70,8 @@ def resave_img(img_object: PIL.Image.Image) -> str:
     if not has_transparency(img_object):  # Изображение непрозрачное.
         if ext != TARGET_OPAQUE_EXTENSION.lower() and os.path.exists(
                 fpe + TARGET_OPAQUE_EXTENSION):  # Существует другой файл с новым путём.
-            raise FileExistsError
+            raise FileExistsError(errno.EEXIST, t("main.file_already_exists"),
+                                  fpe + TARGET_OPAQUE_EXTENSION)
         if ext == TARGET_OPAQUE_EXTENSION.lower() and img_object.mode == "RGB":  # Изображение уже
             # в нужном формате.
             return ""
@@ -78,7 +80,8 @@ def resave_img(img_object: PIL.Image.Image) -> str:
         return save_image(img_object, fpe, TARGET_OPAQUE_EXTENSION)
     if ext != TARGET_TRANSPARENT_EXTENSION.lower() and os.path.exists(
             fpe + TARGET_TRANSPARENT_EXTENSION):  # Существует другой файл с новым путём.
-        raise FileExistsError
+        raise FileExistsError(errno.EEXIST, t("main.file_already_exists"),
+                              fpe + TARGET_TRANSPARENT_EXTENSION)
     if ext == TARGET_TRANSPARENT_EXTENSION.lower() and img_object.mode == "RGBA" and (
             TARGET_TRANSPARENT_EXTENSION.lower() != ".tga" or (
             "compression" in img_object.info and img_object.info["compression"]
