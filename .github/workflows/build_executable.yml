@@ -18,8 +18,10 @@ jobs:
         run: pip install pillow tqdm i18nice[YAML] pyinstaller
       - name: Run PyInstaller
         run: pyinstaller --onefile --name="Pillow_PNG_TGA_Editor" --console --icon=images\Pillows_Hat_Icon.tga --add-data="images:images" --add-data="localization:localization" main.py
-      - name: Copy Executable from dist to root directory
-        run: copy dist\Pillow_PNG_TGA_Editor.exe .
+      - name: Move Executable from dist to root directory
+        run: |
+          move dist\Pillow_PNG_TGA_Editor.exe .
+          rd /s /q dist
         shell: cmd
       - name: Create Automatic Windows Release
         uses: marvinpinto/action-automatic-releases@latest

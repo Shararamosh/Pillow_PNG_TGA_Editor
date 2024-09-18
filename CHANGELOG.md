@@ -1,1 +1,0 @@
-* Attempting to make PyInstaller generate working Windows Executable
