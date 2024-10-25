@@ -11,4 +11,12 @@ pending_removal_files: "Следующие файлы будут удалены:
 pillow_png_tga_editor_name: Unreal Engine Import Texture Converter
 pillow_png_tga_editor_desc: Массово конвертирует текстуры из директории ввода и её под-директорий из любого формата изображений, поддерживаемого PIL (Pillow), в PNG или RLE TGA в зависимости от наличия прозрачности.
 input_path_arg: Директория ввода
-file_already_exists: Файл уже существует
+file_already_exists: "Файл %s уже существует."
+mirror_concat_img_name: Image X-axis Mirror+Concat
+mirror_concat_img_batch_name: Batch Image X-axis Mirror+Concat
+mirror_concat_img_batch_desc: Добавляет справа от изображений их отзеркаленную версию.
+image_files: Файлы изображений
+select_image_files: Выберите файлы изображений
+split_eyes_img_name: Eyes/Mouth Texture Splitter
+split_eyes_img_desc: Разделяет текстуру на 8 изображений, каждое из которых содержит одну пару глаз или рот.
+img_split_eyes_wrong_resolution: "Файл %s имеет неподдерживаемое разрешение: %dx%d."

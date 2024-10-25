@@ -1,0 +1,66 @@
+name: Build Windows Executable with Nuitka
+permissions: write-all
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install requirements
+        run: pip install pillow tqdm i18nice[YAML] pyinstaller
+      - name: Run Nuitka for Pillow_PNG_TGA_Editor
+        with:
+          nuitka-version: main
+          script-name: pillow_png_tga_editor.py
+          onefile: true
+          enable-plugins: tk-inter
+          include-data-dir: |
+            {MAIN_DIRECTORY}/localization=localization
+            {MAIN_DIRECTORY}/images=images
+          windows-icon-from-ico: "{MAIN_DIRECTORY}/images/Pillows_Hat_Icon.tga"
+      - name: Run Nuitka for Mirror_Concat_IMG
+        with:
+          nuitka-version: main
+          script-name: mirror_concat_img.py
+          onefile: true
+          enable-plugins: tk-inter
+          include-data-dir: |
+            {MAIN_DIRECTORY}/localization=localization
+            {MAIN_DIRECTORY}/images=images
+          windows-icon-from-ico: "{MAIN_DIRECTORY}/images/Pillows_Hat_Mirror.tga"
+      - name: Run Nuitka for Split_Eyes_IMG
+        with:
+          nuitka-version: main
+          script-name: split_eyes_img.py
+          onefile: true
+          enable-plugins: tk-inter
+          include-data-dir: |
+            {MAIN_DIRECTORY}/localization=localization
+            {MAIN_DIRECTORY}/images=images
+          windows-icon-from-ico: "{MAIN_DIRECTORY}/images/Pillows_Hat_Split.tga"
+      - name: Move Executables from build to root directory
+        run: |
+          move build\Pillow_PNG_TGA_Editor.exe .
+          move build\Mirror_Concat_IMG.exe .
+          move build\Split_Eyes_IMG.exe .
+          rd /s /q build
+        shell: cmd
+      - name: Create Automatic Windows Release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: latest-nuitka
+          prerelease: false
+          title: Latest Nuitka Build
+          files: |
+            Pillow_PNG_TGA_Editor.exe
+            Mirror_Concat_IMG.exe
+            Split_Eyes_IMG.exe

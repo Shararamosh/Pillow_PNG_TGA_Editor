@@ -17,10 +17,15 @@ jobs:
       - name: Install requirements
         run: pip install pillow tqdm i18nice[YAML] pyinstaller
       - name: Run PyInstaller
-        run: pyinstaller --onefile --name="Pillow_PNG_TGA_Editor" --console --icon=images\Pillows_Hat_Icon.tga --add-data="images:images" --add-data="localization:localization" main.py
-      - name: Move Executable from dist to root directory
+        run: |
+          pyinstaller --onefile --name="Pillow_PNG_TGA_Editor" --console --icon=images\Pillows_Hat_Icon.tga --add-data="images:images" --add-data="localization:localization" pillow_png_tga_editor.py
+          pyinstaller --onefile --name="Mirror_Concat_IMG" --console --icon=images\Pillows_Hat_Mirror.tga --add-data="images:images" --add-data="localization:localization" mirror_concat_img.py
+          pyinstaller --onefile --name="Split_Eyes_IMG" --console --icon=images\Pillows_Hat_Split.tga --add-data="images:images" --add-data="localization:localization" split_eyes_img.py
+      - name: Move Executables from dist to root directory
         run: |
           move dist\Pillow_PNG_TGA_Editor.exe .
+          move dist\Mirror_Concat_IMG.exe .
+          move dist\Split_Eyes_IMG.exe .
           rd /s /q dist
         shell: cmd
       - name: Create Automatic Windows Release
@@ -30,4 +35,7 @@ jobs:
           automatic_release_tag: latest
           prerelease: false
           title: Latest Build
-          files: Pillow_PNG_TGA_Editor.exe
+          files: |
+            Pillow_PNG_TGA_Editor.exe
+            Mirror_Concat_IMG.exe
+            Split_Eyes_IMG.exe

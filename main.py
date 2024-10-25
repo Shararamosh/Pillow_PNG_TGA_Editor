@@ -1,22 +1,15 @@
 """
-    Скрипт, конвертирующий изображения в заданной директории из форматов, поддерживаемых библиотекой
-    PIL (Pillow) в форматы, читаемые Unreal Engine.
+    Скрипт с вспомогательными функциями для приложений.
 """
-# pylint: disable=import-error, line-too-long, too-many-branches
 import os
 import sys
-import argparse
 import logging
 import locale
 import warnings
-from tkinter import Tk, filedialog
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from tkinter import Tk
 import i18n
 import PIL.Image
 import PIL.ImageTk
-from tqdm import tqdm
-from tqdm.contrib.logging import logging_redirect_tqdm
-from helper_funcs import resave_img  # pylint: disable=import-error
 
 SUPPORTED_EXTENSIONS = set(PIL.Image.registered_extensions().keys())
 
@@ -50,169 +43,3 @@ def prepare_app(icon_path: str):
     root = Tk()
     root.withdraw()
     root.iconphoto(True, PIL.ImageTk.PhotoImage(file=get_resource_path(icon_path)))
-
-
-def get_convertable_files(root_path: str) -> (list[tuple[str, int]], int):
-    """
-    Получение списка путей к конвертируемым файлов.
-    :param root_path: Путь к корневой директории.
-    :return: Список из кортежа (путь к файлу, размер файла) и общий размер файлов.
-    """
-    all_files = []
-    full_size = 0
-    logging.info(i18n.t("main.indexing_start"))
-    for subdir, _, files in os.walk(root_path):
-        for file in files:
-            file_path = os.path.abspath(os.path.join(subdir, file))
-            if os.path.splitext(file_path)[1].lower() not in SUPPORTED_EXTENSIONS:
-                continue
-            file_size = os.stat(file_path).st_size
-            all_files.append((file_path, file_size))
-            full_size += file_size
-    logging.info(i18n.t("main.indexing_stop"))
-    return all_files, full_size
-
-
-def batch_convert_files(root_path: str, file_tuples: list[tuple[str, int]], full_size: int) -> list[
-    str]:
-    """
-    Конвертация изображений в нужный формат при соблюдении условий.
-    :param root_path: Корневой путь к директории (для вычисления относительного пути к файлу).
-    :param file_tuples: Список кортежей из двух элементов - путь к файлу и размер файла в байтах.
-    :param full_size: Полный размер всех изображений в списке.
-    :return: Список путей к изображениям, которые нужно удалить.
-    """
-    resave_success = 0  # Количество изображений, которые успешно конвертированы.
-    error_files = []  # Файлы, которые не удалось прочитать.
-    obsolete_files = []  # Файлы, которые необходимо удалить.
-    already_exist_files = []  # Файлы, которые не удалось конвертировать, так как по новому пути
-    # уже существует другой файл, совпадающий по имени и расширению с конвертированным.
-    with logging_redirect_tqdm():
-        pbar = tqdm(total=full_size, position=0, unit="B", unit_scale=True,
-                    desc=i18n.t("main.files"))
-        with ThreadPoolExecutor() as executor:
-            future_convert_file = {executor.submit(convert_file, file_tuple[0]): file_tuple for
-                                   file_tuple in file_tuples}
-            for future in as_completed(future_convert_file):
-                file_tuple = future_convert_file[future]
-                file_path_rel = os.path.relpath(file_tuple[0], root_path)
-                pbar.set_postfix_str(file_path_rel)
-                try:
-                    new_file_path = future.result()
-                except PIL.UnidentifiedImageError:
-                    error_files.append(file_tuple[0])
-                    logging.info(i18n.t("main.file_not_image"),
-                                 os.path.relpath(file_tuple[0], root_path))
-                except FileExistsError as e:
-                    already_exist_files.append(file_tuple[0])
-                    logging.info(e)
-                except OSError as e:
-                    logging.info(i18n.t("main.exception"), file_path_rel)
-                    logging.info(e)
-                else:
-                    if new_file_path != "":
-                        logging.info("%s -> %s", file_path_rel, new_file_path[len(root_path) + 1:])
-                        if file_tuple[0] not in obsolete_files:
-                            obsolete_files.append(file_tuple[0])
-                        if new_file_path in obsolete_files:
-                            obsolete_files.remove(new_file_path)
-                        if new_file_path in error_files:
-                            error_files.remove(new_file_path)
-                        resave_success += 1
-                finally:
-                    pbar.update(file_tuple[1])
-        pbar.set_postfix_str("")
-        pbar.close()
-    log_statistics(root_path, error_files, resave_success, already_exist_files, obsolete_files)
-    return obsolete_files
-
-
-def convert_file(file_path: str) -> str:
-    """
-    Попытка открытия и конвертирования одного изображения без обработки исключений.
-    :param file_path: Путь к файлу.
-    :return: Новый путь к файлу, если файл был удачно конвертирован или тот же, если файл был просто
-        пересохранён, а иначе - пустая строка.
-    """
-    return resave_img(PIL.Image.open(file_path))
-
-
-def batch_remove_files(root_path: str, file_paths: list[str]):
-    """
-    Удаление файлов.
-    :param root_path: Корневой путь к директории (для вычисления относительного пути к файлу).
-    :param file_paths: Список путей к файлам.
-    """
-    with ThreadPoolExecutor() as executor:
-        future_remove_file = {executor.submit(remove_wrapper, file_path): file_path for file_path in
-                              file_paths}
-    for future in as_completed(future_remove_file):
-        file_path = future_remove_file[future]
-        try:
-            future.result()
-        except OSError as e:
-            logging.info(i18n.t("main.exception_remove"), os.path.relpath(file_path, root_path))
-            logging.info(e)
-
-
-def remove_wrapper(file_path: str):
-    """
-    Обёртка для функции os.remove, чтобы Pylint не ругался.
-    :param file_path: Путь к файлу.
-    """
-    os.remove(file_path)
-
-
-def log_statistics(root_path: str, error_files: list[str], resave_success: int,
-                   already_exist_files: list[str], obsolete_files: list[str]):
-    """
-    Печать статистики после прохода по файлам из директории.
-    :param root_path: Путь к изначальной директории.
-    :param error_files: Список с путями к файлам, к которым не удалось получить доступ.
-    :param resave_success: Количество файлов, которые были конвертированы.
-    :param already_exist_files: Список с путями к файлам, которые не удалось конвертировать, так как файл с новым путём уже существует.
-    :param obsolete_files: Файлы, которые необходимо удалить после конвертации.
-    """
-    if len(error_files) > 0:
-        logging.info(i18n.t("main.failed_to_open_files"))
-        for error_file in error_files:
-            logging.info(os.path.relpath(error_file, root_path))
-    if resave_success > 0:
-        logging.info(i18n.t("main.converted_files"), resave_success)
-    if len(already_exist_files) > 0:
-        logging.info(i18n.t("main.failed_to_convert_files"))
-        for already_exist_file in already_exist_files:
-            logging.info(os.path.relpath(already_exist_file, root_path))
-    if len(obsolete_files) > 0:
-        logging.info(i18n.t("main.pending_removal_files"))
-        for obsolete_file in obsolete_files:
-            logging.info(os.path.relpath(obsolete_file, root_path))
-
-
-def execute_convert(root_path) -> str | int:
-    """
-    Конвертация изображения в заданной директории из форматов, поддерживаемых библиотекой Pillow
-    в форматы, читаемые Unreal Engine.
-    :return: Код ошибки или строка с ошибкой.
-    """
-    if root_path == "":
-        root_path = filedialog.askdirectory()
-    if root_path == "" or not os.path.isdir(root_path):
-        if sys.platform == "win32":
-            return 144  # ERROR_DIR_NOT_ROOT
-        return os.EX_OK
-    all_files, full_size = get_convertable_files(root_path)
-    obsolete_files = batch_convert_files(root_path, all_files, full_size)
-    batch_remove_files(root_path, obsolete_files)
-    return os.EX_OK
-
-
-if __name__ == "__main__":
-    sys.tracebacklimit = 0
-    prepare_app("images/Pillows_Hat_Icon.tga")
-    parser = argparse.ArgumentParser(prog=i18n.t("main.pillow_png_tga_editor_name"),
-                                     description=i18n.t("main.pillow_png_tga_editor_desc"))
-    parser.add_argument("-i", "--input_path", type=str, default="",
-                        help=i18n.t("main.input_path_arg"))
-    args = parser.parse_args()
-    sys.exit(execute_convert(args.input_path))

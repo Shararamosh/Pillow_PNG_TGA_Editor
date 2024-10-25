@@ -1,17 +1,17 @@
 """
     Набор функций для работы с изображениями - определения прозрачности и конвертации.
 """
+# pylint: disable=line-too-long
 import os
 import logging
 import errno
+
 from i18n import t
 import PIL.Image
+import PIL.ImageOps
 
-TARGET_OPAQUE_EXTENSION = ".png"  # Расширение, в котором будут сохраняться изображения
-# без прозрачности.
-TARGET_TRANSPARENT_EXTENSION = ".tga"  # Расширение, в котором будут сохраняться изображения
-# с прозрачностью.
-logging.basicConfig(format="%(message)s", level=logging.INFO)
+TARGET_OPAQUE_EXTENSION = ".png"  # Расширение, в котором будут сохраняться изображения без прозрачности.
+TARGET_TRANSPARENT_EXTENSION = ".tga"  # Расширение, в котором будут сохраняться изображения с прозрачностью.
 
 
 def has_transparency(img_object: PIL.Image.Image) -> bool:
@@ -70,8 +70,8 @@ def resave_img(img_object: PIL.Image.Image) -> str:
     if not has_transparency(img_object):  # Изображение непрозрачное.
         if ext != TARGET_OPAQUE_EXTENSION.lower() and os.path.exists(
                 fpe + TARGET_OPAQUE_EXTENSION):  # Существует другой файл с новым путём.
-            raise FileExistsError(errno.EEXIST, t("main.file_already_exists"),
-                                  fpe + TARGET_OPAQUE_EXTENSION)
+            raise FileExistsError(errno.EEXIST, t("main.file_already_exists") %
+                                  (fpe + TARGET_OPAQUE_EXTENSION))
         if ext == TARGET_OPAQUE_EXTENSION.lower() and img_object.mode == "RGB":  # Изображение уже
             # в нужном формате.
             return ""
@@ -80,8 +80,8 @@ def resave_img(img_object: PIL.Image.Image) -> str:
         return save_image(img_object, fpe, TARGET_OPAQUE_EXTENSION)
     if ext != TARGET_TRANSPARENT_EXTENSION.lower() and os.path.exists(
             fpe + TARGET_TRANSPARENT_EXTENSION):  # Существует другой файл с новым путём.
-        raise FileExistsError(errno.EEXIST, t("main.file_already_exists"),
-                              fpe + TARGET_TRANSPARENT_EXTENSION)
+        raise FileExistsError(errno.EEXIST, t("main.file_already_exists") %
+                              (fpe + TARGET_TRANSPARENT_EXTENSION))
     if ext == TARGET_TRANSPARENT_EXTENSION.lower() and img_object.mode == "RGBA" and (
             TARGET_TRANSPARENT_EXTENSION.lower() != ".tga" or (
             "compression" in img_object.info and img_object.info["compression"]
@@ -91,3 +91,57 @@ def resave_img(img_object: PIL.Image.Image) -> str:
     if img_object.mode != "RGBA":
         img_object = img_object.convert("RGBA")
     return save_image(img_object, fpe, TARGET_TRANSPARENT_EXTENSION)
+
+
+def mirror_concat_img(img_object: PIL.Image.Image) -> str:
+    """
+    Добавление справа от изображения его отзеркаленной версии и сохранение вместо начального.
+    :param img_object: Изображение.
+    :return: Путь к сохранённому файлу (совпадает с начальным).
+    """
+    fp = getattr(img_object, "filename", "")
+    if fp == "":
+        raise FileNotFoundError
+    fpe, ext = os.path.splitext(fp)
+    img_concat = PIL.Image.new(img_object.mode, (img_object.size[0] * 2, img_object.size[1]))
+    img_concat.paste(img_object, (0, 0))
+    img_concat.paste(PIL.ImageOps.mirror(img_object), (img_object.size[0], 0))
+    return save_image(img_concat, fpe, ext)
+
+
+def split_eyes_img(img_object: PIL.Image.Image) -> list[str]:
+    """
+    Разделение текстуры глаз/рта на 8 изображений и их сохранение.
+    :param img_object: Изображение.
+    :return: Путь к сохранённым файлам.
+    """
+    fp = getattr(img_object, "filename", "")
+    if fp == "":
+        raise FileNotFoundError
+    if img_object.size[0] % 2 != 0 or img_object.size[1] % 4 != 0:
+        raise IOError(errno.EIO, t("main.img_split_eyes_wrong_resolution") % (
+        fp, img_object.size[0], img_object.size[1]))
+    fpe, ext = os.path.splitext(fp)
+    result_paths = []
+    for i in range(4):
+        y0 = i * img_object.size[1] // 4
+        y1 = (i + 1) * img_object.size[1] // 4
+        x0 = 0
+        x1 = img_object.size[0] // 2
+        img_cropped_right = img_object.crop((x0, y0, x1, y1))
+        img_cropped_left = PIL.ImageOps.mirror(img_cropped_right)
+        img_concat = PIL.Image.new(img_object.mode,
+                                   (img_object.size[0], img_object.size[1] // 4))
+        img_concat.paste(img_cropped_left, (0, 0))
+        img_concat.paste(img_cropped_right, (img_object.size[0] // 2, 0))
+        result_paths.append(save_image(img_concat, fpe + "_" + str(i + 1), ext))
+        x0 = img_object.size[0] // 2
+        x1 = img_object.size[0]
+        img_cropped_left = img_object.crop((x0, y0, x1, y1))
+        img_cropped_right = PIL.ImageOps.mirror(img_cropped_left)
+        img_concat = PIL.Image.new(img_object.mode,
+                                   (img_object.size[0], img_object.size[1] // 4))
+        img_concat.paste(img_cropped_left, (0, 0))
+        img_concat.paste(img_cropped_right, (img_object.size[0] // 2, 0))
+        result_paths.append(save_image(img_concat, fpe + "_" + str(i + 5), ext))
+    return result_paths
