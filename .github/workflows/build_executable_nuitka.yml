@@ -24,9 +24,9 @@ jobs:
           onefile: true
           enable-plugins: tk-inter
           include-data-dir: |
-            {MAIN_DIRECTORY}/localization=localization
-            {MAIN_DIRECTORY}/images=images
-          windows-icon-from-ico: "{MAIN_DIRECTORY}/images/Pillows_Hat_Icon.tga"
+            localization=localization
+            images=images
+          windows-icon-from-ico: "images/Pillows_Hat_Icon.tga"
       - name: Run Nuitka for Mirror_Concat_IMG
         uses: Nuitka/Nuitka-Action@main
         with:
@@ -35,9 +35,9 @@ jobs:
           onefile: true
           enable-plugins: tk-inter
           include-data-dir: |
-            {MAIN_DIRECTORY}/localization=localization
-            {MAIN_DIRECTORY}/images=images
-          windows-icon-from-ico: "{MAIN_DIRECTORY}/images/Pillows_Hat_Icon_Mirror.tga"
+            localization=localization
+            images=images
+          windows-icon-from-ico: "images/Pillows_Hat_Icon_Mirror.tga"
       - name: Run Nuitka for Split_Eyes_IMG
         uses: Nuitka/Nuitka-Action@main
         with:
@@ -46,9 +46,9 @@ jobs:
           onefile: true
           enable-plugins: tk-inter
           include-data-dir: |
-            {MAIN_DIRECTORY}/localization=localization
-            {MAIN_DIRECTORY}/images=images
-          windows-icon-from-ico: "{MAIN_DIRECTORY}/images/Pillows_Hat_Icon_Split.tga"
+            localization=localization
+            images=images
+          windows-icon-from-ico: "images/Pillows_Hat_Icon_Split.tga"
       - name: Move Executables from build to root directory
         run: |
           move build\Pillow_PNG_TGA_Editor.exe .
