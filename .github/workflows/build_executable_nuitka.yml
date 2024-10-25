@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install requirements
-        run: pip install pillow tqdm i18nice[YAML] pyinstaller
+        run: pip install pillow tqdm i18nice[YAML] imageio
       - name: Run Nuitka for Pillow_PNG_TGA_Editor
         uses: Nuitka/Nuitka-Action@main
         with:
