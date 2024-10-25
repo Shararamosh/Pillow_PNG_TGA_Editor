@@ -37,7 +37,7 @@ jobs:
           include-data-dir: |
             {MAIN_DIRECTORY}/localization=localization
             {MAIN_DIRECTORY}/images=images
-          windows-icon-from-ico: "{MAIN_DIRECTORY}/images/Pillows_Hat_Mirror.tga"
+          windows-icon-from-ico: "{MAIN_DIRECTORY}/images/Pillows_Hat_Icon_Mirror.tga"
       - name: Run Nuitka for Split_Eyes_IMG
         uses: Nuitka/Nuitka-Action@main
         with:
@@ -48,7 +48,7 @@ jobs:
           include-data-dir: |
             {MAIN_DIRECTORY}/localization=localization
             {MAIN_DIRECTORY}/images=images
-          windows-icon-from-ico: "{MAIN_DIRECTORY}/images/Pillows_Hat_Split.tga"
+          windows-icon-from-ico: "{MAIN_DIRECTORY}/images/Pillows_Hat_Icon_Split.tga"
       - name: Move Executables from build to root directory
         run: |
           move build\Pillow_PNG_TGA_Editor.exe .

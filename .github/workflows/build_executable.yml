@@ -19,8 +19,8 @@ jobs:
       - name: Run PyInstaller
         run: |
           pyinstaller --onefile --name="Pillow_PNG_TGA_Editor" --console --icon=images\Pillows_Hat_Icon.tga --add-data="images:images" --add-data="localization:localization" pillow_png_tga_editor.py
-          pyinstaller --onefile --name="Mirror_Concat_IMG" --console --icon=images\Pillows_Hat_Mirror.tga --add-data="images:images" --add-data="localization:localization" mirror_concat_img.py
-          pyinstaller --onefile --name="Split_Eyes_IMG" --console --icon=images\Pillows_Hat_Split.tga --add-data="images:images" --add-data="localization:localization" split_eyes_img.py
+          pyinstaller --onefile --name="Mirror_Concat_IMG" --console --icon=images\Pillows_Hat_Icon_Mirror.tga --add-data="images:images" --add-data="localization:localization" mirror_concat_img.py
+          pyinstaller --onefile --name="Split_Eyes_IMG" --console --icon=images\Pillows_Hat_Icon_Split.tga --add-data="images:images" --add-data="localization:localization" split_eyes_img.py
       - name: Move Executables from dist to root directory
         run: |
           move dist\Pillow_PNG_TGA_Editor.exe .
