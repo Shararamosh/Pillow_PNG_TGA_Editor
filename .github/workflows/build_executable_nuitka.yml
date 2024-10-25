@@ -17,6 +17,7 @@ jobs:
       - name: Install requirements
         run: pip install pillow tqdm i18nice[YAML] pyinstaller
       - name: Run Nuitka for Pillow_PNG_TGA_Editor
+        uses: Nuitka/Nuitka-Action@main
         with:
           nuitka-version: main
           script-name: pillow_png_tga_editor.py
@@ -27,6 +28,7 @@ jobs:
             {MAIN_DIRECTORY}/images=images
           windows-icon-from-ico: "{MAIN_DIRECTORY}/images/Pillows_Hat_Icon.tga"
       - name: Run Nuitka for Mirror_Concat_IMG
+        uses: Nuitka/Nuitka-Action@main
         with:
           nuitka-version: main
           script-name: mirror_concat_img.py
@@ -37,6 +39,7 @@ jobs:
             {MAIN_DIRECTORY}/images=images
           windows-icon-from-ico: "{MAIN_DIRECTORY}/images/Pillows_Hat_Mirror.tga"
       - name: Run Nuitka for Split_Eyes_IMG
+        uses: Nuitka/Nuitka-Action@main
         with:
           nuitka-version: main
           script-name: split_eyes_img.py
