@@ -14,7 +14,7 @@ import PIL.Image
 import PIL.ImageTk
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
-from main import prepare_app, SUPPORTED_EXTENSIONS
+from main import init_app, SUPPORTED_EXTENSIONS
 from helper_funcs import resave_img
 
 
@@ -167,8 +167,7 @@ def execute_convert(root_path) -> str | int:
 
 
 if __name__ == "__main__":
-    sys.tracebacklimit = 0
-    prepare_app("images/Pillows_Hat_Icon.tga")
+    init_app("images/Pillows_Hat_Icon.tga")
     parser = argparse.ArgumentParser(prog=t("main.pillow_png_tga_editor_name"),
                                      description=t("main.pillow_png_tga_editor_desc"))
     parser.add_argument("input_path", nargs="?", type=str, default="",

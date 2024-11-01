@@ -6,6 +6,7 @@ on:
       - master
 jobs:
   build-windows:
+    name: Build for Windows
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -13,9 +14,11 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: 3.11
       - name: Install requirements
-        run: pip install pillow tqdm i18nice[YAML] imageio
+        run: |
+          pip install -r requirements.txt
+          pip install imageio
       - name: Run Nuitka for Pillow_PNG_TGA_Editor
         uses: Nuitka/Nuitka-Action@main
         with:

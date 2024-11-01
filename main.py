@@ -14,22 +14,27 @@ import PIL.ImageTk
 SUPPORTED_EXTENSIONS = set(PIL.Image.registered_extensions().keys())
 
 
-def get_resource_path(filename: str) -> str:
+def get_resource_path(file_path: str) -> str:
     """
-    Получение пути к файлу или директории, если используется PyInstaller.
-    :param filename: Изначальный путь к файлу или директории.
+    Получение пути к файлу или директории внутри проекта, если используется PyInstaller или Nuitka.
+    :param file_path: Изначальный путь к файлу или директории.
     :return: Изменённый путь к файлу или директории.
     """
-    if hasattr(sys, "_MEIPASS"):
-        return os.path.join(getattr(sys, "_MEIPASS"), filename)
-    return filename
+    if "NUITKA_ONEFILE_PARENT" in os.environ:
+        base_path = os.path.dirname(sys.executable)
+    elif hasattr(sys, "_MEIPASS"):
+        base_path = getattr(sys, "_MEIPASS")
+    else:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, file_path)
 
 
-def prepare_app(icon_path: str):
+def init_app(icon_path: str):
     """
     Подготовка приложения к выполнению.
     :param icon_path: Путь к иконке для диалоговых окон Tkinter.
     """
+    sys.tracebacklimit = 0
     logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     # noinspection PyDeprecation

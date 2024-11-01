@@ -1,7 +1,7 @@
-indexing_start: "Индексирование файлов..."
-indexing_stop: "Индексирование завершено."
-files: "Файлы"
-file_not_image: "Файл %s не распознан как изображение."
+indexing_start: Индексирование файлов...
+indexing_stop: Индексирование завершено.
+files: Файлы
+file_not_image: Файл %s не распознан как изображение.
 exception: "Исключение для %s:"
 exception_remove: "Исключение при удалении %s:"
 failed_to_open_files: "Не удаётся открыть файлы:"
@@ -11,7 +11,7 @@ pending_removal_files: "Следующие файлы будут удалены:
 pillow_png_tga_editor_name: Unreal Engine Import Texture Converter
 pillow_png_tga_editor_desc: Массово конвертирует текстуры из директории ввода и её под-директорий из любого формата изображений, поддерживаемого PIL (Pillow), в PNG или RLE TGA в зависимости от наличия прозрачности.
 input_path_arg: Директория ввода
-file_already_exists: "Файл %s уже существует."
+file_already_exists: Файл %s уже существует.
 mirror_concat_img_name: Image X-axis Mirror+Concat
 mirror_concat_img_batch_name: Batch Image X-axis Mirror+Concat
 mirror_concat_img_batch_desc: Добавляет справа от изображений их отзеркаленную версию.

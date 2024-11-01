@@ -6,6 +6,7 @@ on:
       - master
 jobs:
   build-windows:
+    name: Build for Windows
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -13,11 +14,14 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: 3.11
       - name: Install requirements
-        run: pip install pillow tqdm i18nice[YAML] pyinstaller
-      - name: Run PyInstaller
+        run: pip install -r requirements.txt
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+      - name: Run PyInstaller for Pillow_PNG_TGA_Editor, Mirror_Concat_IMG and Split_Eyes_IMG
         run: |
+          set PYTHONOPTIMIZE=2
           pyinstaller --onefile --name="Pillow_PNG_TGA_Editor" --console --icon=images\Pillows_Hat_Icon.tga --add-data="images:images" --add-data="localization:localization" pillow_png_tga_editor.py
           pyinstaller --onefile --name="Mirror_Concat_IMG" --console --icon=images\Pillows_Hat_Icon_Mirror.tga --add-data="images:images" --add-data="localization:localization" mirror_concat_img.py
           pyinstaller --onefile --name="Split_Eyes_IMG" --console --icon=images\Pillows_Hat_Icon_Split.tga --add-data="images:images" --add-data="localization:localization" split_eyes_img.py

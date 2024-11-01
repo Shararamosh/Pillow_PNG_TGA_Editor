@@ -14,7 +14,7 @@ import PIL.Image
 import PIL.ImageTk
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
-from main import prepare_app, SUPPORTED_EXTENSIONS
+from main import init_app, SUPPORTED_EXTENSIONS
 from helper_funcs import split_eyes_img
 
 
@@ -58,8 +58,7 @@ def split_eyes_file(file_path: str) -> list[str]:
 
 
 if __name__ == "__main__":
-    sys.tracebacklimit = 0
-    prepare_app("images/Pillows_Hat_Icon.tga")
+    init_app("images/Pillows_Hat_Icon.tga")
     parser = argparse.ArgumentParser(prog=t("main.split_eyes_img_name"),
                                      description=t("main.split_eyes_img_name"))
     parser.add_argument("img_paths", nargs="*", default=[], help=t("main.image_files"))

@@ -1,7 +1,7 @@
-indexing_start: "Indexing files..."
-indexing_stop: "Indexing complete."
-files: "Files"
-file_not_image: "File %s is not recognized as image."
+indexing_start: Indexing files...
+indexing_stop: Indexing complete.
+files: Files
+file_not_image: File %s is not recognized as image.
 exception: "Exception for %s:"
 exception_remove: "Exception while removing %s:"
 failed_to_open_files: "Can't open files:"
@@ -11,7 +11,7 @@ pending_removal_files: "The following files will be removed:"
 pillow_png_tga_editor_name: Unreal Engine Import Texture Converter
 pillow_png_tga_editor_desc: Batch converts image textures in the input directory and its sub-directories from any image format supported by PIL (Pillow) to PNG or RLE TGA depending on transparency.
 input_path_arg: Input directory
-file_already_exists: "File %s already exists."
+file_already_exists: File %s already exists.
 mirror_concat_img_name: Image X-axis Mirror+Concat
 mirror_concat_img_batch_name: Batch Image X-axis Mirror+Concat
 mirror_concat_img_batch_desc: Concatenates mirrored images to the right of original images.
