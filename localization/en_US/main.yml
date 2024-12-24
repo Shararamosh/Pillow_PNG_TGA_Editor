@@ -1,5 +1,5 @@
 indexing_start: Indexing files...
-indexing_stop: Indexing complete.
+indexing_finish: Indexing complete.
 files: Files
 file_not_image: File %s is not recognized as image.
 exception: "Exception for %s:"
@@ -9,8 +9,8 @@ converted_files: "Successfully converted files: %s."
 failed_to_convert_files: "Failed to convert files:"
 pending_removal_files: "The following files will be removed:"
 pillow_png_tga_editor_name: Unreal Engine Import Texture Converter
-pillow_png_tga_editor_desc: Batch converts image textures in the input directory and its sub-directories from any image format supported by PIL (Pillow) to PNG or RLE TGA depending on transparency.
-input_path_arg: Input directory
+pillow_png_tga_editor_desc: Batch converts image textures from any image format supported by PIL (Pillow) to PNG or RLE TGA depending on transparency.
+input_paths_arg: Input files or directories
 file_already_exists: File %s already exists.
 mirror_concat_img_name: Image X-axis Mirror+Concat
 mirror_concat_img_batch_name: Batch Image X-axis Mirror+Concat
@@ -20,3 +20,4 @@ select_image_files: Select image files
 split_eyes_img_name: Eyes/Mouth Texture Splitter
 split_eyes_img_desc: Splits image texture into 8 images each consisting of single eyes pair or mouth.
 img_split_eyes_wrong_resolution: "File %s has unsupported resolution: %dx%d."
+path_unknown: "%s is neither file, nor directory."
