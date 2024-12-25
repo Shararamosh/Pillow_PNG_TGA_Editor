@@ -24,7 +24,7 @@ jobs:
         with:
           nuitka-version: main
           script-name: pillow_png_tga_editor.py
-          onefile: true
+          mode: app
           enable-plugins: tk-inter
           include-data-dir: |
             localization=localization
@@ -35,7 +35,7 @@ jobs:
         with:
           nuitka-version: main
           script-name: mirror_concat_img.py
-          onefile: true
+          mode: app
           enable-plugins: tk-inter
           include-data-dir: |
             localization=localization
@@ -46,7 +46,7 @@ jobs:
         with:
           nuitka-version: main
           script-name: split_eyes_img.py
-          onefile: true
+          mode: app
           enable-plugins: tk-inter
           include-data-dir: |
             localization=localization
