@@ -1,19 +1,23 @@
 """
     Скрипт, добавляющий справа от изображений их зеркальную копию.
 """
-# pylint: disable=import-error, duplicate-code
+# pylint: disable=import-error, duplicate-code, wrong-import-position
 import os
 import sys
 import argparse
 import logging
 from tkinter.filedialog import askopenfilenames
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
 from i18n import t
 import PIL.Image
 import PIL.ImageTk
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
-from main import init_app, SUPPORTED_EXTENSIONS
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "."))
+
+from general_funcs import init_app, SUPPORTED_EXTENSIONS
 from helper_funcs import mirror_concat_img
 
 
@@ -55,12 +59,20 @@ def mirror_concat_file(file_path: str):
     return mirror_concat_img(PIL.Image.open(file_path))
 
 
-if __name__ == "__main__":
-    init_app("images/Pillows_Hat_Icon.tga")
+def main() -> int | str:
+    """
+    Запуск скрипта.
+    :return: Код ошибки или строка об ошибке.
+    """
+    init_app(os.path.join("images", "Pillows_Hat_Icon.tga"))
     parser = argparse.ArgumentParser(prog=t("main.mirror_concat_img_name"),
                                      description=t("main.mirror_concat_img_name"))
     parser.add_argument("img_paths", nargs="*", default=[], help=t("main.image_files"))
     args = parser.parse_args()
-    sys.exit(execute_mirror_concat(askopenfilenames(title=t("main.select_image_files"), filetypes=[(
+    return execute_mirror_concat(askopenfilenames(title=t("main.select_image_files"), filetypes=[(
         t("main.image_files"), ["*" + ext for ext in SUPPORTED_EXTENSIONS])]) if len(
-        args.img_paths) < 1 else args.img_paths))
+        args.img_paths) < 1 else args.img_paths)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

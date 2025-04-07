@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+    paths:
+      - "src/**"
+      - ".github/workflows/build_executable_nuitka.yml"
 jobs:
   build-windows:
     name: Build for Windows
@@ -23,35 +26,35 @@ jobs:
         uses: Nuitka/Nuitka-Action@main
         with:
           nuitka-version: main
-          script-name: pillow_png_tga_editor.py
+          script-name: src/Pillow_PNG_TGA_Editor/pillow_png_tga_editor.py
           mode: app
           enable-plugins: tk-inter
           include-data-dir: |
-            localization=localization
-            images=images
-          windows-icon-from-ico: "images/Pillows_Hat_Icon.tga"
+            src/Pillow_PNG_TGA_Editor/localization=localization
+            src/Pillow_PNG_TGA_Editor/images=images
+          windows-icon-from-ico: src/Pillow_PNG_TGA_Editor/images/Pillows_Hat_Icon.tga
       - name: Run Nuitka for Mirror_Concat_IMG
         uses: Nuitka/Nuitka-Action@main
         with:
           nuitka-version: main
-          script-name: mirror_concat_img.py
+          script-name: src/Pillow_PNG_TGA_Editor/mirror_concat_img.py
           mode: app
           enable-plugins: tk-inter
           include-data-dir: |
-            localization=localization
-            images=images
-          windows-icon-from-ico: "images/Pillows_Hat_Icon_Mirror.tga"
+            src/Pillow_PNG_TGA_Editor/localization=localization
+            src/Pillow_PNG_TGA_Editor/images=images
+          windows-icon-from-ico: src/Pillow_PNG_TGA_Editor/images/Pillows_Hat_Icon_Mirror.tga
       - name: Run Nuitka for Split_Eyes_IMG
         uses: Nuitka/Nuitka-Action@main
         with:
           nuitka-version: main
-          script-name: split_eyes_img.py
+          script-name: src/Pillow_PNG_TGA_Editor/split_eyes_img.py
           mode: app
           enable-plugins: tk-inter
           include-data-dir: |
-            localization=localization
-            images=images
-          windows-icon-from-ico: "images/Pillows_Hat_Icon_Split.tga"
+            src/Pillow_PNG_TGA_Editor/localization=localization
+            src/Pillow_PNG_TGA_Editor/images=images
+          windows-icon-from-ico: src/Pillow_PNG_TGA_Editor/images/Pillows_Hat_Icon_Split.tga
       - name: Move Executables from build to root directory
         run: |
           move build\Pillow_PNG_TGA_Editor.exe .

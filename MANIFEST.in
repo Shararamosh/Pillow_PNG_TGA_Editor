@@ -1,0 +1,2 @@
+graft src/Pillow_PNG_TGA_Editor/images
+graft src/Pillow_PNG_TGA_Editor/localization

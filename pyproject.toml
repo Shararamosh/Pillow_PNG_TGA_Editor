@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+[project]
+name="Pillow_PNG_TGA_Editor"
+dynamic = ["version"]
+requires-python = ">= 3.11"
+dependencies = [
+    "pillow",
+    "tqdm",
+    "i18nice[YAML]"
+]
+authors = [{name = "Shararamosh"}]
+description = "A set of console tools for processing images intended to be imported to A Hat in Time/UDK Editor."
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Natural Language :: English",
+    "Natural Language :: Russian",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Utilities"
+]
+readme = "README.MD"
+[project.urls]
+Repository = "https://github.com/Shararamosh/Pillow_PNG_TGA_Editor.git"
+[project.scripts]
+pillow_png_tga_editor = "Pillow_PNG_TGA_Editor.pillow_png_tga_editor:main"
+mirror_concat_img = "Pillow_PNG_TGA_Editor.mirror_concat_img:main"
+split_eyes_img = "Pillow_PNG_TGA_Editor.split_eyes_img:main"

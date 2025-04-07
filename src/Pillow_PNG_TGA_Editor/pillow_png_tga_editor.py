@@ -2,7 +2,7 @@
     Скрипт, конвертирующий изображения в заданной директории из форматов, поддерживаемых библиотекой
     PIL (Pillow) в форматы, читаемые Unreal Engine.
 """
-# pylint: disable=import-error
+# pylint: disable=import-error, wrong-import-position
 import os
 import sys
 import argparse
@@ -10,11 +10,15 @@ import logging
 from tkinter.filedialog import askdirectory
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from i18n import t
+
 import PIL.Image
 import PIL.ImageTk
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
-from main import init_app, SUPPORTED_EXTENSIONS
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "."))
+
+from general_funcs import init_app, SUPPORTED_EXTENSIONS
 from helper_funcs import resave_img
 
 
@@ -166,11 +170,19 @@ def execute_convert(input_paths: list[str]) -> str | int:
     return os.EX_OK
 
 
-if __name__ == "__main__":
-    init_app("images/Pillows_Hat_Icon.tga")
+def main() -> int | str:
+    """
+    Запуск скрипта.
+    :return: Код ошибки или строка об ошибке.
+    """
+    init_app(os.path.join("images", "Pillows_Hat_Icon.tga"))
     parser = argparse.ArgumentParser(prog=t("main.pillow_png_tga_editor_name"),
                                      description=t("main.pillow_png_tga_editor_desc"))
     parser.add_argument("input_paths", nargs="*", type=str, default="",
                         help=t("main.input_paths_arg"))
     args = parser.parse_args()
-    sys.exit(execute_convert([askdirectory()] if len(args.input_paths) < 1 else args.input_paths))
+    return execute_convert([askdirectory()] if len(args.input_paths) < 1 else args.input_paths)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

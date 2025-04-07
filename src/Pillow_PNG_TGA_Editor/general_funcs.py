@@ -7,6 +7,7 @@ import logging
 import locale
 import warnings
 from tkinter import Tk
+
 import i18n
 import PIL.Image
 import PIL.ImageTk
@@ -25,7 +26,7 @@ def get_resource_path(file_path: str) -> str:
     elif hasattr(sys, "_MEIPASS"):
         base_path = getattr(sys, "_MEIPASS")
     else:
-        base_path = os.path.abspath(".")
+        base_path = os.path.dirname(__file__)
     return os.path.join(base_path, file_path)
 
 
